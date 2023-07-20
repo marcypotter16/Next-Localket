@@ -1,6 +1,11 @@
 import {FirestoreDataConverter} from "@firebase/firestore";
 import {Timestamp, WithFieldValue} from "@firebase/firestore/lite";
 
+export type ProduttoreSemplice = {
+    id: string,
+    photoURL: string,
+}
+
 export class Mercatino {
     readonly id: string;
     nome: string;
@@ -13,8 +18,10 @@ export class Mercatino {
     latitudine: number;
     longitudine: number;
     immagine: string;
+    ProduttoriIscritti: ProduttoreSemplice[] = [];
 
-    constructor(id: string, nome: string, indirizzo: string, citta: string, zipcode: string, data: string, ora: string, descrizione: string, latitudine: number, longitudine: number, immagine: string) {
+    constructor(id: string, nome: string, indirizzo: string, citta: string, zipcode: string, data: string, ora: string, descrizione: string, latitudine: number, longitudine: number, immagine: string,
+                ProduttoriIscritti: ProduttoreSemplice[] = []) {
         if(zipcode.toString().length == 5)
         {
             this.id = id;
@@ -28,6 +35,7 @@ export class Mercatino {
             this.latitudine = latitudine;
             this.longitudine = longitudine;
             this.immagine = immagine;
+            this.ProduttoriIscritti = ProduttoriIscritti;
         }
         else throw new Error('Codice postale invalido')
     }
@@ -51,11 +59,12 @@ export const mercatinoConverter: FirestoreDataConverter<Mercatino> = {
             descrizione: mercatino.descrizione,
             latitudine: mercatino.latitudine,
             longitudine: mercatino.longitudine,
-            immagine: mercatino.immagine
+            immagine: mercatino.immagine,
+            produttoriIscritti: mercatino.ProduttoriIscritti
         };
     },
     fromFirestore: function (snapshot: any, options: any) {
         const data = snapshot.data(options);
-        return new Mercatino(snapshot.id, data.nome, data.indirizzo, data.citta, data.zipcode, data.data, data.ora, data.descrizione, data.latitudine, data.longitudine, data.immagine);
+        return new Mercatino(snapshot.id, data.nome, data.indirizzo, data.citta, data.zipcode, data.data, data.ora, data.descrizione, data.latitudine, data.longitudine, data.immagine, data.produttoriIscritti);
     }
 }
