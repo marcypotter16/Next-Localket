@@ -25,6 +25,7 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@heroicons/react": "^2.0.18",
     "@types/uuid": "^9.0.2",
     "uuid": "^9.0.0"
   }

@@ -6,12 +6,15 @@ import {Mercatino, mercatinoConverter} from "@/Models/Mercatino";
 import {ref, uploadBytes} from "@firebase/storage";
 import {db, storage} from "@/FirebaseUtils/firebase";
 import {doc, increment, setDoc, updateDoc} from "@firebase/firestore/lite";
+import {CheckCircleIcon, XCircleIcon} from "@heroicons/react/24/outline";
 
 
 export default function PublishMercatini() {
-    const nullMercatino: Mercatino = new Mercatino(v4(), '', '', '', '12345', '',  '', '',  0, 0, '');
+    const nullMercatino: Mercatino = new Mercatino(v4(), '', '', '', '12345', '', '', '', 0, 0, '');
     const [input, setInput] = useState(nullMercatino)
     const photoRef = useRef<HTMLInputElement>(null);
+    const [ricorrente, setRicorrente] = useState(false);
+
 
     function submit(e: FormEvent<HTMLFormElement>) {
         const today = new Date();
@@ -25,11 +28,6 @@ export default function PublishMercatini() {
             );
             uploadBytes(imageRef, file);
         }
-        /* db.collection('products')
-      .withConverter(productConverter)
-      .doc(productId)
-      .set(input)
-      .then((_res) => alert('Added: ' + input.name)); */
 
         // Add the product to the database
         setDoc(
@@ -73,7 +71,7 @@ export default function PublishMercatini() {
                     <div>
                         <label className='text-gray-200'>Nome:</label>
                         <input
-                            className='border border-gray-400 shadow bg-inherit text-white block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                            className='inputField'
                             type='text'
                             name='nome'
                             value={input.nome}
@@ -83,7 +81,7 @@ export default function PublishMercatini() {
                     <div>
                         <label className='text-gray-200'>Descrizione: </label>
                         <textarea
-                            className='border border-gray-400 shadow bg-inherit text-white block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                            className='inputField'
                             name='descrizione'
                             value={input.descrizione}
                             onChange={(e) => handleChange(e)}
@@ -94,7 +92,7 @@ export default function PublishMercatini() {
                         <div className='w-1/4'>
                             <label className='text-gray-200'>Città:</label>
                             <input
-                                className='border border-gray-400 shadow bg-inherit text-white text-center block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                                className='inputField'
                                 type='text'
                                 name='citta'
                                 value={input.citta}
@@ -104,7 +102,7 @@ export default function PublishMercatini() {
                         <div className='w-full'>
                             <label className='text-gray-200'>Indirizzo: </label>
                             <input
-                                className='border border-gray-400 shadow bg-inherit text-white block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                                className='inputField'
                                 type='text'
                                 name='indirizzo'
                                 value={input.indirizzo}
@@ -114,7 +112,7 @@ export default function PublishMercatini() {
                         <div className='w-28'>
                             <label className='text-gray-200'>CAP: </label>
                             <input
-                                className='border border-gray-400 shadow bg-inherit text-white text-center block py-2 px-2 w-full rounded focus:outline-none focus:border-teal-500'
+                                className='inputField'
                                 type='text'
                                 name='zipcode'
                                 value={input.zipcode}
@@ -127,7 +125,7 @@ export default function PublishMercatini() {
                     <div>
                         <label className='text-gray-200'>Data: </label>
                         <input
-                            className='border border-gray-400 shadow bg-inherit text-white block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                            className='inputField'
                             type='date'
                             name='data'
                             value={input.data}
@@ -137,7 +135,7 @@ export default function PublishMercatini() {
                     <div>
                         <label className='text-gray-200'>Ora: </label>
                         <input
-                            className='border border-gray-400 shadow bg-inherit text-white block py-2 px-4 w-full rounded focus:outline-none focus:border-teal-500'
+                            className='inputField'
                             type='text'
                             name='ora'
                             value={input.ora}
@@ -157,37 +155,108 @@ export default function PublishMercatini() {
                             <label className='text-gray-600 text-sm'>
                                 Seleziona la provincia in cui si trova il prodotto</label>
                         </div>
-					</div>
+                    </div>
 
-                        {/* FOTO */}
-                        <div>
-                            <label
-                                className='block text-sm font-medium text-gray-400 dark:text-white'
-                                htmlFor='file_input'
-                            >
-                                Carica foto:
-                            </label>
+                    {/* FOTO */}
+                    <div>
+                        <label
+                            className='block text-sm font-medium text-gray-400 dark:text-white'
+                            htmlFor='file_input'
+                        >
+                            Carica foto:
+                        </label>
+                        <input
+                            className='inputField'
+                            id='file_input'
+                            type='file'
+                            name='photos'
+                            accept='image/png, image/jpg, image/jpeg'
+                            multiple
+                            ref={photoRef}
+                        />
+                    </div>
+
+                    {/* SUBMIT */}
+                    <div className='flex flex-col-reverse max-w-3xl justify-center'>
+                        <div className='flex justify-center py-2 items-center space-x-2'>
                             <input
-                                className='block w-full text-sm border border-gray-300 rounded-lg file:mx cursor-pointer text-gray-600 focus:outline-none p-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400'
-                                id='file_input'
-                                type='file'
-                                name='photos'
-                                accept='image/png, image/jpg, image/jpeg'
-                                multiple
-                                ref={photoRef}
-                            />
-                        </div>
-
-					{/* SUBMIT */}
-                        <div className='flex flex-col-reverse max-w-3xl justify-center'>
-
-                            <button
-                                type='submit'
-                                className='border border-gray-200 text-white rounded py-2 px-5 hover:shadow-lg hover:shadow-cyan-500/50 hover:border-teal-500'
+                                type='checkbox'
+                                id='delete-1-week'
+                                onChange={(e) => {
+                                    setRicorrente(e.target.checked);
+                                    console.log(ricorrente, e.target.checked);
+                                }}
+                                className='hidden'
+                                value={ricorrente ? "on" : "off"}
+                            ></input>
+                            <label
+                                htmlFor='delete-1-week'
+                                className='flex items-center cursor-pointer'
                             >
-                                Inserisci Prodotto
-                            </button>
+                                {ricorrente ? (
+                                    <CheckCircleIcon className='w-8 h-8 text-green-500'/>
+                                ) : (
+                                    <XCircleIcon className='w-8 h-8 text-red-500'/>
+                                )}
+
+                                <span className='ml-3 mr-4 text-gray-400 text-xs'>
+								Ricorrente
+							</span>
+                            </label>
+                            {ricorrente && (
+                                <div className='flex space-x-4'>
+                                    <div className='flex flex-col-reverse'>
+                                        <input
+                                            type='number'
+                                            onChange={(e) => {
+                                                const newInput = input
+                                                if (newInput.ricorrente) {
+                                                    newInput.ricorrente!.ogni = Number(e.target.value)
+                                                } else {
+                                                    newInput.ricorrente = {
+                                                        ogni: Number(e.target.value),
+                                                        per: 0
+                                                    }
+                                                }
+                                            }}
+                                            value={input.ricorrente?.ogni}
+                                            name={"ogni"}
+                                            className='inputField'
+                                        >
+                                        </input>
+                                        <label className='text-xs text-slate-400'>Ogni quante settimane?</label>
+                                    </div>
+                                    <div className='flex flex-col-reverse'>
+                                        <input
+                                            type='number'
+                                            onChange={(e) => {
+                                                const newInput = input
+                                                if (newInput.ricorrente) {
+                                                    newInput.ricorrente!.per = Number(e.target.value)
+                                                } else {
+                                                    newInput.ricorrente = {
+                                                        ogni: 0,
+                                                        per: Number(e.target.value)
+                                                    }
+                                                }
+
+                                            }}
+                                            value={input.ricorrente?.per}
+                                            className='inputField'
+                                        >
+                                        </input>
+                                        <label className='text-xs text-slate-400'>Per quante settimane?</label>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                        <button
+                            type='submit'
+                            className='border border-gray-200 text-white rounded py-2 px-5 hover:shadow-lg hover:shadow-cyan-500/50 hover:border-teal-500'
+                        >
+                            Inserisci evento
+                        </button>
+                    </div>
 
                 </form>
             </div>
